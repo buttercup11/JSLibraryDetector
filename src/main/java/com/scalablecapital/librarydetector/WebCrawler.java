@@ -64,7 +64,7 @@ public class WebCrawler {
                 Elements scripts = htmlDocument.select("script[src*=.js]");
                 for (Element script : scripts) {
                     String library = getLibraryNameFromLink(script.attr("abs:src"));
-                    int count = topJSLibraryList.containsKey(library) ? topJSLibraryList.get(library) : 1;
+                    int count = topJSLibraryList.containsKey(library) ? topJSLibraryList.get(library) : 0;
                     topJSLibraryList.put(library, count + 1);
                 }
             } catch (IOException e) {
