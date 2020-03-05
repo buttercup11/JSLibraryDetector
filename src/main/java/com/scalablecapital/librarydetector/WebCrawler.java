@@ -14,11 +14,9 @@ import java.util.Map;
 
 public class WebCrawler {
     private HashSet<String> visitedLinks;
-    private HashSet<String> visitedLibraries;
 
     public WebCrawler() {
         visitedLinks = new HashSet<>();
-        visitedLibraries = new HashSet<>();
     }
 
     private String constructRootURL(String url) {
@@ -51,15 +49,6 @@ public class WebCrawler {
         return links;
     }
 
-    private void buildLibraryDatabase(String url) throws IOException {
-        Document htmlDocument = Jsoup.connect(url).get();
-        Elements scripts = htmlDocument.select("script[src*=.js]");
-        for (Element script : scripts) {
-            String libraryName = getLibraryNameFromLink(script.attr("abs:src"));
-            visitedLibraries.add(libraryName);
-        }
-    }
-
     public List<String> getSearchResultLinks(String searchTerm) {
         String url = "https://www.google.com/search?q=" + searchTerm;
         visitedLinks.add(constructRootURL(url));
@@ -71,9 +60,11 @@ public class WebCrawler {
         Map<String, Integer> topJSLibraryList = new HashMap<>();
         for (String url : urlList) {
             try {
-                buildLibraryDatabase(url);
-                for (String library : visitedLibraries) {
-                    int count = topJSLibraryList.get(library) == null ? 1 : topJSLibraryList.get(library);
+                Document htmlDocument = Jsoup.connect(url).get();
+                Elements scripts = htmlDocument.select("script[src*=.js]");
+                for (Element script : scripts) {
+                    String library = getLibraryNameFromLink(script.attr("abs:src"));
+                    int count = topJSLibraryList.containsKey(library) ? topJSLibraryList.get(library) : 1;
                     topJSLibraryList.put(library, count + 1);
                 }
             } catch (IOException e) {
